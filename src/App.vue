@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { type BlockForm, type SpeedKey, defaultSpeed, type AbilityKey, defaultAbilities } from './types/block'
+import { type BlockForm, type SpeedKey, defaultSpeed, type AbilityKey, defaultAbilities, type SenseKey, defaultSenses } from './types/block'
 
 const sizeOptions = [
   'Tiny',
@@ -47,6 +47,14 @@ const abilityLabels: Record<AbilityKey, string> = {
   CHA: 'CHA',
 }
 
+const senseKeys: SenseKey[] = ['darkvision', 'blindsight', 'tremorsense', 'truesight']
+const senseLabels: Record<SenseKey, string> = {
+  darkvision: 'Darkvision',
+  blindsight: 'Bindsight',
+  tremorsense: 'Tremorsense',
+  truesight: 'Truesight',
+}
+
 const block = reactive<BlockForm>({
   name: '',
   size: 'Medium',
@@ -57,6 +65,7 @@ const block = reactive<BlockForm>({
   initiative: null,
   speed: defaultSpeed,
   abilities: defaultAbilities,
+  senses: defaultSenses,
 })
 </script>
 
@@ -139,6 +148,23 @@ const block = reactive<BlockForm>({
             <span>{{ abilityLabels[key] }}</span>
             <input
               v-model.number="block.abilities[key]"
+              type="number"
+              min="0"
+              placeholder="0"
+            />
+          </label>
+        </div>
+
+        <p>Senses</p>
+        <div class="sub-grid">
+          <label
+            v-for="key in senseKeys"
+            :key="key"
+            class="sub-field"
+          >
+            <span>{{ senseLabels[key] }}</span>
+            <input
+              v-model.number="block.senses[key]"
               type="number"
               min="0"
               placeholder="0"

@@ -19,6 +19,15 @@ export const defaultAbilities: Abilities = {
     CHA: 10,
 }
 
+export type SenseKey = 'darkvision' | 'blindsight' | 'tremorsense' | 'truesight'
+export type Senses = Record<SenseKey, number | null>
+export const defaultSenses: Senses = {
+    darkvision: null,
+    blindsight: null,
+    tremorsense: null,
+    truesight: null,
+}
+
 export type BlockForm = {
     name: string
     size: string
@@ -29,4 +38,5 @@ export type BlockForm = {
     initiative: number | null
     speed: Speed
     abilities: Abilities
+    senses: Senses
 }
