@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, computed, ref } from 'vue'
 import { type BlockForm, type SpeedKey, defaultSpeed, type AbilityKey, defaultAbilities, type SenseKey, defaultSenses } from './types/block'
 
+// sizes
 const sizeOptions = [
   'Tiny',
   'Small',
@@ -11,6 +12,7 @@ const sizeOptions = [
   'Gargantuan',
 ]
 
+// types
 const typeOptions = [
   'Aberration',
   'Beast',
@@ -28,6 +30,7 @@ const typeOptions = [
   'Undead',
 ]
 
+// speed
 const speedKeys: SpeedKey[] = ['walk', 'burrow', 'climb', 'fly', 'swim']
 const speedLabels: Record<SpeedKey, string> = {
   walk: 'Walk',
@@ -36,7 +39,25 @@ const speedLabels: Record<SpeedKey, string> = {
   fly: 'Fly',
   swim: 'Swim',
 }
+const availableSpeedKeys = computed(() =>
+  speedKeys.filter((key) => block.speed[key] === null)
+)
+const activeSpeedKeys = computed(() =>
+  speedKeys.filter((key) => block.speed[key] !== null)
+)
+const speedToAdd = ref<SpeedKey | ''>('')
+const showSpeedDropdown = ref(false)
+function addSpeed() {
+  if (!speedToAdd.value) return
+  block.speed[speedToAdd.value] = 0
+  speedToAdd.value = ''
+  showSpeedDropdown.value = false
+}
+function removeSpeed(key: SpeedKey) {
+  block.speed[key] = null
+}
 
+// abilities
 const abilityKeys: AbilityKey[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
 const abilityLabels: Record<AbilityKey, string> = {
   STR: 'STR',
@@ -47,6 +68,7 @@ const abilityLabels: Record<AbilityKey, string> = {
   CHA: 'CHA',
 }
 
+// senses
 const senseKeys: SenseKey[] = ['darkvision', 'blindsight', 'tremorsense', 'truesight']
 const senseLabels: Record<SenseKey, string> = {
   darkvision: 'Darkvision',
@@ -54,7 +76,25 @@ const senseLabels: Record<SenseKey, string> = {
   tremorsense: 'Tremorsense',
   truesight: 'Truesight',
 }
+const availableSenseKeys = computed(() =>
+  senseKeys.filter((key) => block.senses[key] === null)
+)
+const activeSenseKeys = computed(() =>
+  senseKeys.filter((key) => block.senses[key] !== null)
+)
+const senseToAdd = ref<SenseKey | ''>('')
+const showSenseDropdown = ref(false)
+function addSense() {
+  if (!senseToAdd.value) return
+  block.senses[senseToAdd.value] = 0
+  senseToAdd.value = ''
+  showSenseDropdown.value = false
+}
+function removeSense(key: SenseKey) {
+  block.senses[key] = null
+}
 
+// master block
 const block = reactive<BlockForm>({
   name: '',
   size: 'Medium',
@@ -147,35 +187,69 @@ const block = reactive<BlockForm>({
         <p>Speed</p>
         <div class="sub-grid">
           <label
-            v-for="key in speedKeys"
+            v-for="key in activeSpeedKeys"
             :key="key"
             class="sub-field"
           >
-            <span>{{ speedLabels[key] }}</span>
-            <input
-              v-model.number="block.speed[key]"
-              type="number"
-              min="0"
-              placeholder="0"
-            />
+              <span>{{ speedLabels[key] }}</span>
+              <input
+                v-model.number="block.speed[key]"
+                type="number"
+                min="0"
+                placeholder="0"
+              />
+              <button v-if="key !== 'walk'" class="btn-circle" type="button" @click="removeSpeed(key)">-</button>
           </label>
+          <button v-if="availableSpeedKeys.length > 0 && !showSpeedDropdown" class="btn-circle" type="button" @click="showSpeedDropdown = true">+</button>
+          <select
+            v-else-if="showSpeedDropdown"
+            v-model="speedToAdd"
+            @change="addSpeed"
+            @blur="showSpeedDropdown = false"
+          >
+            <option value="">Select Speed Type</option>
+            <option
+              v-for="key in availableSpeedKeys"
+              :key="key"
+              :value="key"
+            >
+              {{ speedLabels[key] }}
+            </option>
+          </select>
         </div>
 
         <p>Senses</p>
         <div class="sub-grid">
           <label
-            v-for="key in senseKeys"
+            v-for="key in activeSenseKeys"
             :key="key"
             class="sub-field"
           >
-            <span>{{ senseLabels[key] }}</span>
-            <input
-              v-model.number="block.senses[key]"
-              type="number"
-              min="0"
-              placeholder="0"
-            />
+              <span>{{ senseLabels[key] }}</span>
+              <input
+                v-model.number="block.senses[key]"
+                type="number"
+                min="0"
+                placeholder="0"
+              />
+              <button class="btn-circle" type="button" @click="removeSense(key)">-</button>
           </label>
+          <button v-if="availableSenseKeys.length > 0 && !showSenseDropdown" class="btn-circle" type="button" @click="showSenseDropdown = true">+</button>
+          <select
+            v-else-if="showSenseDropdown"
+            v-model="senseToAdd"
+            @change="addSense"
+            @blur="showSenseDropdown = false"
+          >
+            <option value="">Select Sense</option>
+            <option
+              v-for="key in availableSenseKeys"
+              :key="key"
+              :value="key"
+            >
+              {{ senseLabels[key] }}
+            </option>
+          </select>
         </div>
 
       </div>
@@ -274,6 +348,11 @@ h2 {
 
 .field.numfield input {
   width: 60px;
+  align-self: center;
+}
+
+.field span {
+  align-self: center;
 }
 
 .sub-grid {
@@ -297,12 +376,14 @@ h2 {
   box-sizing: border-box;
   text-align: center;
   width: 60px;
+  align-self: center;
 }
 
 .sub-field span {
   font-size: 0.8rem;
   text-align: center;
   color: #bfa3a3;
+  align-self: center;
 }
 
 input,
@@ -313,6 +394,7 @@ select {
   outline: none;
   text-align: center;
   padding: 8px 8px;
+  max-height: 35px;
 }
 
 input:focus,
@@ -332,5 +414,27 @@ pre {
 
 p {
   margin-bottom: 8px;
+}
+
+.btn-circle {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  align-self: center;
+  margin-top: 4px;
+}
+
+.btn-circle:hover {
+  background: var(--border);
 }
 </style>
