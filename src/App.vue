@@ -7,6 +7,7 @@ type BlockForm = {
   type: string
   hp: number | null
   ac: number | null
+  prof: number | null
 }
 
 const sizeOptions = [
@@ -41,6 +42,7 @@ const block = reactive<BlockForm>({
   type: 'Humanoid',
   hp: null,
   ac: null,
+  prof: null,
 })
 </script>
 
@@ -73,7 +75,8 @@ const block = reactive<BlockForm>({
             </option>
           </select>
         </label>
-
+      </div>
+      <div class="form-grid">
         <label class="field">
           <span>HP</span>
           <input v-model.number="block.hp" type="number" min="0" placeholder="0" />
@@ -82,6 +85,11 @@ const block = reactive<BlockForm>({
         <label class="field">
           <span>AC</span>
           <input v-model.number="block.ac" type="number" min="0" placeholder="0" />
+        </label>
+
+        <label class="field">
+          <span>Proficiency</span>
+          <input v-model.number="block.prof" type="number" min="0" max="10" placeholder="0" />
         </label>
       </div>
     </section>
@@ -146,6 +154,7 @@ h2 {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 16px;
+  margin-bottom: 8px;
 }
 
 .field {
