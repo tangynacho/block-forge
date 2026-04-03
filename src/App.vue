@@ -42,55 +42,59 @@ const block = reactive<BlockForm>({
 
 <template>
   <main class="app-shell">
-    <section class="panel">
-      <h1>Block Forge</h1>
-      <p class="section-note">Attributes</p>
+    <h1>Block Forge</h1>
+    <section class="attributes panel">
+      <div>
+        <p class="section-note">Attributes</p>
+        <div class="form-grid">
+          <label class="field">
+            <span>Name</span>
+            <input v-model="block.name" type="text" placeholder="Enter a name" />
+          </label>
 
-      <div class="form-grid">
-        <label class="field">
-          <span>Name</span>
-          <input v-model="block.name" type="text" placeholder="Enter a name" />
-        </label>
+          <label class="field">
+            <span>Size</span>
+            <select v-model="block.size">
+              <option v-for="size in sizeOptions" :key="size" :value="size">
+                {{ size }}
+              </option>
+            </select>
+          </label>
 
-        <label class="field">
-          <span>Size</span>
-          <select v-model="block.size">
-            <option v-for="size in sizeOptions" :key="size" :value="size">
-              {{ size }}
-            </option>
-          </select>
-        </label>
+          <label class="field">
+            <span>Type</span>
+            <select v-model="block.type">
+              <option v-for="type in typeOptions" :key="type" :value="type">
+                {{ type }}
+              </option>
+            </select>
+          </label>
+        </div>
+        <div class="form-grid">
+          <label class="field">
+            <span>HP</span>
+            <input v-model.number="block.hp" type="number" min="0" placeholder="0" />
+          </label>
 
-        <label class="field">
-          <span>Type</span>
-          <select v-model="block.type">
-            <option v-for="type in typeOptions" :key="type" :value="type">
-              {{ type }}
-            </option>
-          </select>
-        </label>
+          <label class="field">
+            <span>AC</span>
+            <input v-model.number="block.ac" type="number" min="0" placeholder="0" />
+          </label>
+
+          <label class="field">
+            <span>Proficiency Bonus</span>
+            <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
+          </label>
+        </div>
       </div>
-      <div class="form-grid">
-        <label class="field">
-          <span>HP</span>
-          <input v-model.number="block.hp" type="number" min="0" placeholder="0" />
-        </label>
-
-        <label class="field">
-          <span>AC</span>
-          <input v-model.number="block.ac" type="number" min="0" placeholder="0" />
-        </label>
-
-        <label class="field">
-          <span>Proficiency Bonus</span>
-          <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
-        </label>
-      </div>
+      <div><p class="section-note">Traits</p></div>
+      <div><p class="section-note">Actions</p></div>
     </section>
 
     <section class="panel">
       <h2>Current Data</h2>
-      <pre>{{ block }}</pre>
+      <div><pre>{{ block }}</pre></div>
+      <div></div>
     </section>
   </main>
 </template>
@@ -120,16 +124,23 @@ body,
   padding: 32px;
   background: var(--bg);
   color: var(--text);
-  display: grid;
-  gap: 24px;
 }
 
 .panel {
+  display: grid;
+  gap: 24px;
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 24px;
+  margin-bottom: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+.attributes {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+.results {
+  grid-template-columns: 1fr 1fr;
 }
 
 h1,
