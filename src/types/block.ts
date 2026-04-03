@@ -1,11 +1,5 @@
-export type Speed = {
-    walk: number | null
-    burrow: number | null
-    climb: number | null
-    fly: number | null
-    swim: number | null
-}
-
+export type SpeedKey = 'walk' | 'burrow' | 'climb' | 'fly' | 'swim'
+export type Speed = Record<SpeedKey, number | null>
 export const defaultSpeed: Speed = {
     walk: 30,
     burrow: null,
@@ -14,15 +8,8 @@ export const defaultSpeed: Speed = {
     swim: null,
 }
 
-export type Abilities = {
-    STR: number | null
-    DEX: number | null
-    CON: number | null
-    INT: number | null
-    WIS: number | null
-    CHA: number | null
-}
-
+export type AbilityKey = 'STR' | 'DEX' | 'CON' | 'INT' | 'WIS' | 'CHA'
+export type Abilities = Record<AbilityKey, number | null>
 export const defaultAbilities: Abilities = {
     STR: 10,
     DEX: 10,

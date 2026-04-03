@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { type BlockForm, defaultSpeed, defaultAbilities } from './types/block'
+import { type BlockForm, SpeedKey, defaultSpeed, AbilityKey, defaultAbilities } from './types/block'
 
 const sizeOptions = [
   'Tiny',
@@ -28,6 +28,25 @@ const typeOptions = [
   'Undead',
 ]
 
+const speedKeys: SpeedKey[] = ['walk', 'burrow', 'climb', 'fly', 'swim']
+const speedLabels: Record<SpeedKey, string> = {
+  walk: 'Walk',
+  burrow: 'Burrow',
+  climb: 'Climb',
+  fly: 'Fly',
+  swim: 'Swim',
+}
+
+const abilityKeys: AbilityKey[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
+const abilityLabels: Record<AbilityKey, string> = {
+  STR: 'STR',
+  DEX: 'DEX',
+  CON: 'CON',
+  INT: 'INT',
+  WIS: 'WIS',
+  CHA: 'CHA',
+}
+
 const block = reactive<BlockForm>({
   name: '',
   size: 'Medium',
@@ -45,7 +64,7 @@ const block = reactive<BlockForm>({
     <h1>Block Forge</h1>
     <section class="attributes panel">
       <div>
-        <p class="section-note">Attributes</p>
+        <h2 class="section-note">Details</h2>
         <div class="form-grid">
           <label class="field">
             <span>Name</span>
@@ -86,9 +105,44 @@ const block = reactive<BlockForm>({
             <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
           </label>
         </div>
+        
+        <span>Speed</span>
+        <div class="sub-grid speed">
+          <label
+            v-for="key in speedKeys"
+            :key="key"
+            class="sub-field"
+          >
+            <span>{{ speedLabels[key] }}</span>
+            <input
+              v-model.number="block.speed[key]"
+              type="number"
+              min="0"
+              placeholder="0"
+            />
+          </label>
+        </div>
+
+        <span>Abilities</span>
+        <div class="sub-grid abilities">
+          <label
+            v-for="key in abilityKeys"
+            :key="key"
+            class="sub-field"
+          >
+            <span>{{ abilityLabels[key] }}</span>
+            <input
+              v-model.number="block.abilities[key]"
+              type="number"
+              min="0"
+              placeholder="0"
+            />
+          </label>
+        </div>
+
       </div>
-      <div><p class="section-note">Traits</p></div>
-      <div><p class="section-note">Actions</p></div>
+      <div><h2 class="section-note">Traits</h2></div>
+      <div><h2 class="section-note">Actions</h2></div>
     </section>
 
     <section class="panel">
@@ -168,10 +222,36 @@ h2 {
   gap: 8px;
 }
 
-.field span {
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text);
+.sub-grid {
+  display: grid;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.sub-grid.speed {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.sub-grid.abilities {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.sub-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 20px;
+}
+
+.sub-field span {
+  font-size: 0.8rem;
+  text-align: center;
+  color: #bfa3a3;
+}
+
+.sub-field input {
+  text-align: center;
 }
 
 input,
