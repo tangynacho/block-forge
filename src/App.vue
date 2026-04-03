@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { type BlockForm, SpeedKey, defaultSpeed, AbilityKey, defaultAbilities } from './types/block'
+import { type BlockForm, type SpeedKey, defaultSpeed, type AbilityKey, defaultAbilities } from './types/block'
 
 const sizeOptions = [
   'Tiny',
@@ -54,6 +54,7 @@ const block = reactive<BlockForm>({
   hp: null,
   ac: null,
   bonus: null,
+  initiative: null,
   speed: defaultSpeed,
   abilities: defaultAbilities,
 })
@@ -101,13 +102,18 @@ const block = reactive<BlockForm>({
           </label>
 
           <label class="field">
-            <span>Proficiency Bonus</span>
+            <span>Proficiency</span>
             <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
+          </label>
+
+          <label class="field">
+            <span>Initiative</span>
+            <input v-model.number="block.initiative" type="number" placeholder="0" />
           </label>
         </div>
         
-        <span>Speed</span>
-        <div class="sub-grid speed">
+        <p>Speed</p>
+        <div class="sub-grid">
           <label
             v-for="key in speedKeys"
             :key="key"
@@ -123,8 +129,8 @@ const block = reactive<BlockForm>({
           </label>
         </div>
 
-        <span>Abilities</span>
-        <div class="sub-grid abilities">
+        <p>Abilities</p>
+        <div class="sub-grid">
           <label
             v-for="key in abilityKeys"
             :key="key"
@@ -190,10 +196,10 @@ body,
   margin-bottom: 8px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
-.attributes {
+.panel.attributes {
   grid-template-columns: 1fr 1fr 1fr;
 }
-.results {
+.panel.results {
   grid-template-columns: 1fr 1fr;
 }
 
@@ -210,48 +216,44 @@ h2 {
 }
 
 .form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  display: flex;
   gap: 16px;
+  flex-wrap: nowrap;
   margin-bottom: 8px;
 }
 
 .field {
+  flex: 1;
   display: flex;
   flex-direction: column;
+  text-align: center;
   gap: 8px;
 }
 
 .sub-grid {
-  display: grid;
+  display: flex;
+  width: 100%;
   gap: 8px;
-  flex-wrap: wrap;
   margin-bottom: 8px;
 }
 
-.sub-grid.speed {
-  grid-template-columns: repeat(5, 1fr);
-}
-
-.sub-grid.abilities {
-  grid-template-columns: repeat(6, 1fr);
-}
-
 .sub-field {
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 20px;
+}
+
+.sub-field input {
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .sub-field span {
   font-size: 0.8rem;
   text-align: center;
   color: #bfa3a3;
-}
-
-.sub-field input {
-  text-align: center;
 }
 
 input,
@@ -261,6 +263,7 @@ select {
   border-radius: 10px;
   padding: 10px 12px;
   outline: none;
+  text-align: center;
 }
 
 input:focus,
