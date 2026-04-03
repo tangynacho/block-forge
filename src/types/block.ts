@@ -36,6 +36,7 @@ export type BlockForm = {
     ac: number | null
     bonus: number | null
     initiative: number | null
+    cr: number | null
     speed: Speed
     abilities: Abilities
     senses: Senses

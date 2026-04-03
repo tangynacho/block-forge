@@ -63,6 +63,7 @@ const block = reactive<BlockForm>({
   ac: null,
   bonus: null,
   initiative: null,
+  cr: null,
   speed: defaultSpeed,
   abilities: defaultAbilities,
   senses: defaultSenses,
@@ -100,41 +101,29 @@ const block = reactive<BlockForm>({
           </label>
         </div>
         <div class="form-grid">
-          <label class="field">
+          <label class="field numfield">
             <span>HP</span>
             <input v-model.number="block.hp" type="number" min="0" placeholder="0" />
           </label>
 
-          <label class="field">
+          <label class="field numfield">
             <span>AC</span>
             <input v-model.number="block.ac" type="number" min="0" placeholder="0" />
           </label>
 
-          <label class="field">
+          <label class="field numfield">
             <span>Proficiency</span>
             <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
           </label>
 
-          <label class="field">
+          <label class="field numfield">
             <span>Initiative</span>
-            <input v-model.number="block.initiative" type="number" placeholder="0" />
+            <input v-model.number="block.initiative" type="number" placeholder="0" prefix="+" />
           </label>
-        </div>
-        
-        <p>Speed</p>
-        <div class="sub-grid">
-          <label
-            v-for="key in speedKeys"
-            :key="key"
-            class="sub-field"
-          >
-            <span>{{ speedLabels[key] }}</span>
-            <input
-              v-model.number="block.speed[key]"
-              type="number"
-              min="0"
-              placeholder="0"
-            />
+
+          <label class="field numfield">
+            <span>CR</span>
+            <input v-model.number="block.cr" type="number" placeholder="0" />
           </label>
         </div>
 
@@ -148,6 +137,23 @@ const block = reactive<BlockForm>({
             <span>{{ abilityLabels[key] }}</span>
             <input
               v-model.number="block.abilities[key]"
+              type="number"
+              min="0"
+              placeholder="0"
+            />
+          </label>
+        </div>
+        
+        <p>Speed</p>
+        <div class="sub-grid">
+          <label
+            v-for="key in speedKeys"
+            :key="key"
+            class="sub-field"
+          >
+            <span>{{ speedLabels[key] }}</span>
+            <input
+              v-model.number="block.speed[key]"
               type="number"
               min="0"
               placeholder="0"
@@ -244,8 +250,9 @@ h2 {
 .form-grid {
   display: flex;
   gap: 16px;
-  flex-wrap: nowrap;
   margin-bottom: 8px;
+  justify-content: space-evenly;
+  width: 100%;
 }
 
 .field {
@@ -254,6 +261,19 @@ h2 {
   flex-direction: column;
   text-align: center;
   gap: 8px;
+  width: 65px;
+}
+
+.field.numfield {
+  flex: 0 0 auto;
+  width: 75px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field.numfield input {
+  width: 60px;
 }
 
 .sub-grid {
@@ -261,10 +281,12 @@ h2 {
   width: 100%;
   gap: 8px;
   margin-bottom: 8px;
+  justify-content: left;
 }
 
 .sub-field {
-  flex: 1 1 0;
+  flex: 0 0 auto;
+  width: 75px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -274,6 +296,7 @@ h2 {
   width: 100%;
   box-sizing: border-box;
   text-align: center;
+  width: 60px;
 }
 
 .sub-field span {
@@ -287,9 +310,9 @@ select {
   color: var(--panel);
   border: 1px solid var(--border);
   border-radius: 10px;
-  padding: 10px 12px;
   outline: none;
   text-align: center;
+  padding: 8px 8px;
 }
 
 input:focus,
@@ -305,5 +328,9 @@ pre {
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 16px;
+}
+
+p {
+  margin-bottom: 8px;
 }
 </style>
