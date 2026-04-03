@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
-
-type BlockForm = {
-  name: string
-  size: string
-  type: string
-  hp: number | null
-  ac: number | null
-  prof: number | null
-}
+import { type BlockForm, defaultSpeed, defaultAbilities } from './types/block'
 
 const sizeOptions = [
   'Tiny',
@@ -42,7 +34,9 @@ const block = reactive<BlockForm>({
   type: 'Humanoid',
   hp: null,
   ac: null,
-  prof: null,
+  bonus: null,
+  speed: defaultSpeed,
+  abilities: defaultAbilities,
 })
 </script>
 
@@ -88,8 +82,8 @@ const block = reactive<BlockForm>({
         </label>
 
         <label class="field">
-          <span>Proficiency</span>
-          <input v-model.number="block.prof" type="number" min="0" max="10" placeholder="0" />
+          <span>Proficiency Bonus</span>
+          <input v-model.number="block.bonus" type="number" min="0" max="10" placeholder="0" />
         </label>
       </div>
     </section>
