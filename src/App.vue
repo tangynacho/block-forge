@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
-import { type BlockForm, type SpeedKey, defaultSpeed, type AbilityKey, defaultAbilities, type SenseKey, defaultSenses } from './types/block'
+import { type BlockForm, type SpeedKey, defaultSpeed, speedKeys, abilityKeys, defaultAbilities, type SenseKey, defaultSenses, senseKeys, type LanguageKey, defaultLanguages, languageKeys } from './types/block'
 
 // sizes
 const sizeOptions = [
@@ -31,19 +31,11 @@ const typeOptions = [
 ]
 
 // speed
-const speedKeys: SpeedKey[] = ['walk', 'burrow', 'climb', 'fly', 'swim']
-const speedLabels: Record<SpeedKey, string> = {
-  walk: 'Walk',
-  burrow: 'Burrow',
-  climb: 'Climb',
-  fly: 'Fly',
-  swim: 'Swim',
-}
 const availableSpeedKeys = computed(() =>
-  speedKeys.filter((key) => block.speed[key] === null)
+  speedKeys.filter((key) => block.speed[key] === -1)
 )
 const activeSpeedKeys = computed(() =>
-  speedKeys.filter((key) => block.speed[key] !== null)
+  speedKeys.filter((key) => block.speed[key] !== -1)
 )
 const speedToAdd = ref<SpeedKey | ''>('')
 const showSpeedDropdown = ref(false)
@@ -54,33 +46,15 @@ function addSpeed() {
   showSpeedDropdown.value = false
 }
 function removeSpeed(key: SpeedKey) {
-  block.speed[key] = null
-}
-
-// abilities
-const abilityKeys: AbilityKey[] = ['STR', 'DEX', 'CON', 'INT', 'WIS', 'CHA']
-const abilityLabels: Record<AbilityKey, string> = {
-  STR: 'STR',
-  DEX: 'DEX',
-  CON: 'CON',
-  INT: 'INT',
-  WIS: 'WIS',
-  CHA: 'CHA',
+  block.speed[key] = -1
 }
 
 // senses
-const senseKeys: SenseKey[] = ['darkvision', 'blindsight', 'tremorsense', 'truesight']
-const senseLabels: Record<SenseKey, string> = {
-  darkvision: 'Darkvision',
-  blindsight: 'Bindsight',
-  tremorsense: 'Tremorsense',
-  truesight: 'Truesight',
-}
 const availableSenseKeys = computed(() =>
-  senseKeys.filter((key) => block.senses[key] === null)
+  senseKeys.filter((key) => block.senses[key] === -1)
 )
 const activeSenseKeys = computed(() =>
-  senseKeys.filter((key) => block.senses[key] !== null)
+  senseKeys.filter((key) => block.senses[key] !== -1)
 )
 const senseToAdd = ref<SenseKey | ''>('')
 const showSenseDropdown = ref(false)
@@ -91,7 +65,26 @@ function addSense() {
   showSenseDropdown.value = false
 }
 function removeSense(key: SenseKey) {
-  block.senses[key] = null
+  block.senses[key] = -1
+}
+
+// languages
+const availableLanguageKeys = computed(() =>
+  languageKeys.filter((key) => block.languages[key] === false)
+)
+const activeLanguageKeys = computed(() =>
+  languageKeys.filter((key) => block.languages[key] !== false)
+)
+const languageToAdd = ref<LanguageKey | ''>('')
+const showLanguageDropdown = ref(false)
+function addLanguage() {
+  if (!languageToAdd.value) return
+  block.languages[languageToAdd.value] = true
+  languageToAdd.value = ''
+  showLanguageDropdown.value = false
+}
+function removeLanguage(key: LanguageKey) {
+  block.languages[key] = false
 }
 
 // master block
@@ -107,6 +100,7 @@ const block = reactive<BlockForm>({
   speed: defaultSpeed,
   abilities: defaultAbilities,
   senses: defaultSenses,
+  languages: defaultLanguages,
 })
 </script>
 
@@ -174,7 +168,7 @@ const block = reactive<BlockForm>({
             :key="key"
             class="sub-field"
           >
-            <span>{{ abilityLabels[key] }}</span>
+            <span>{{ key }}</span>
             <input
               v-model.number="block.abilities[key]"
               type="number"
@@ -191,16 +185,16 @@ const block = reactive<BlockForm>({
             :key="key"
             class="sub-field"
           >
-              <span>{{ speedLabels[key] }}</span>
+              <span>{{ key }}</span>
               <input
                 v-model.number="block.speed[key]"
                 type="number"
                 min="0"
                 placeholder="0"
               />
-              <button v-if="key !== 'walk'" class="btn-circle" type="button" @click="removeSpeed(key)">-</button>
+              <button v-if="key !== 'Walk'" class="btn-circle" type="button" @click="removeSpeed(key)">-</button>
           </label>
-          <button v-if="availableSpeedKeys.length > 0 && !showSpeedDropdown" class="btn-circle" type="button" @click="showSpeedDropdown = true">+</button>
+          <button v-if="availableSpeedKeys.length > 0 && !showSpeedDropdown" class="btn-circle plus" type="button" @click="showSpeedDropdown = true">+</button>
           <select
             v-else-if="showSpeedDropdown"
             v-model="speedToAdd"
@@ -213,7 +207,7 @@ const block = reactive<BlockForm>({
               :key="key"
               :value="key"
             >
-              {{ speedLabels[key] }}
+              {{ key }}
             </option>
           </select>
         </div>
@@ -225,7 +219,7 @@ const block = reactive<BlockForm>({
             :key="key"
             class="sub-field"
           >
-              <span>{{ senseLabels[key] }}</span>
+              <span>{{key}}</span>
               <input
                 v-model.number="block.senses[key]"
                 type="number"
@@ -234,7 +228,7 @@ const block = reactive<BlockForm>({
               />
               <button class="btn-circle" type="button" @click="removeSense(key)">-</button>
           </label>
-          <button v-if="availableSenseKeys.length > 0 && !showSenseDropdown" class="btn-circle" type="button" @click="showSenseDropdown = true">+</button>
+          <button v-if="availableSenseKeys.length > 0 && !showSenseDropdown" class="btn-circle plus" type="button" @click="showSenseDropdown = true">+</button>
           <select
             v-else-if="showSenseDropdown"
             v-model="senseToAdd"
@@ -247,7 +241,35 @@ const block = reactive<BlockForm>({
               :key="key"
               :value="key"
             >
-              {{ senseLabels[key] }}
+              {{ key }}
+            </option>
+          </select>
+        </div>
+
+        <p>Languages</p>
+        <div class="sub-grid languages">
+          <label
+            v-for="key in activeLanguageKeys"
+            :key="key"
+            class="sub-field"
+          >
+              <span>{{key}}</span>
+              <button class="btn-circle" type="button" @click="removeLanguage(key)">-</button>
+          </label>
+          <button v-if="availableLanguageKeys.length > 0 && !showLanguageDropdown" class="btn-circle plus" type="button" @click="showLanguageDropdown = true">+</button>
+          <select
+            v-else-if="showLanguageDropdown"
+            v-model="languageToAdd"
+            @change="addLanguage"
+            @blur="showLanguageDropdown = false"
+          >
+            <option value="">Select Language</option>
+            <option
+              v-for="key in availableLanguageKeys"
+              :key="key"
+              :value="key"
+            >
+              {{ key }}
             </option>
           </select>
         </div>
@@ -303,7 +325,7 @@ body,
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 .panel.attributes {
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr;
 }
 .panel.results {
   grid-template-columns: 1fr 1fr;
@@ -363,12 +385,24 @@ h2 {
   justify-content: left;
 }
 
+.sub-grid.languages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
 .sub-field {
   flex: 0 0 auto;
   width: 75px;
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.sub-grid.languages .sub-field {
+  flex: 0 0 auto;
+  width: 85px;
 }
 
 .sub-field input {
@@ -432,6 +466,12 @@ p {
   padding: 0;
   align-self: center;
   margin-top: 4px;
+}
+
+.btn-circle.plus {
+  width: 36px;
+  height: 36px;
+  font-size: 21px;
 }
 
 .btn-circle:hover {
