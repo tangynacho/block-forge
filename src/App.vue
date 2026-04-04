@@ -41,7 +41,7 @@ const speedToAdd = ref<SpeedKey | ''>('')
 const showSpeedDropdown = ref(false)
 function addSpeed() {
   if (!speedToAdd.value) return
-  block.speed[speedToAdd.value] = 0
+  block.speed[speedToAdd.value] = 30
   speedToAdd.value = ''
   showSpeedDropdown.value = false
 }
@@ -60,7 +60,7 @@ const senseToAdd = ref<SenseKey | ''>('')
 const showSenseDropdown = ref(false)
 function addSense() {
   if (!senseToAdd.value) return
-  block.senses[senseToAdd.value] = 0
+  block.senses[senseToAdd.value] = 60
   senseToAdd.value = ''
   showSenseDropdown.value = false
 }
