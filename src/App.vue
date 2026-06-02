@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { reactive, computed, ref } from 'vue'
 import { type BlockForm, type SpeedKey, defaultSpeed, speedKeys, abilityKeys, defaultAbilities, type SenseKey, defaultSenses, senseKeys, type LanguageKey, defaultLanguages, languageKeys } from './types/block'
+import { type BlockTrait, defaultTrait, defaultTraits, traitDatabase } from './types/traits'
+import { type ActionSectionKey, type BlockAction, defaultAction, defaultActions, actionSectionLabels, actionSectionKeys, actionCategories, attackSubcats } from './types/actions'
+import { addTrait, removeTrait } from './functions/traits'
+import { addAction, removeAction } from './functions/actions'
 
 // sizes
 const sizeOptions = [
@@ -87,6 +91,45 @@ function removeLanguage(key: LanguageKey) {
   block.languages[key] = false
 }
 
+const selectedTraitID = ref(-1)
+const customTraitName = ref('')
+
+const showActionForge = ref(false)
+
+const actionDraft = reactive({
+  section: actionSectionKeys[0],
+  name: '',
+  category: '',
+  attackSubcat: '',
+  range: 5,
+  attackAbility: '',
+  proficient: false,
+  hitBonus: 0,
+  description: '',
+})
+
+function openActionForge() {
+  actionDraft.section = actionSectionKeys[0]
+  actionDraft.name = ''
+  actionDraft.description = ''
+  showActionForge.value = true
+}
+
+function closeActionForge() {
+  showActionForge.value = false
+}
+
+function createActionFromForge() {
+  addAction(
+    block,
+    actionDraft.section,
+    actionDraft.name,
+    actionDraft.description
+  )
+
+  closeActionForge()
+}
+
 // master block
 const block = reactive<BlockForm>({
   name: '',
@@ -101,6 +144,8 @@ const block = reactive<BlockForm>({
   abilities: defaultAbilities,
   senses: defaultSenses,
   languages: defaultLanguages,
+  traits: defaultTraits,
+  actions: defaultActions,
 })
 </script>
 
@@ -275,8 +320,73 @@ const block = reactive<BlockForm>({
         </div>
 
       </div>
-      <div><h2 class="section-note">Traits</h2></div>
-      <div><h2 class="section-note">Actions</h2></div>
+      <div>
+        <h2 class="section-note">Traits</h2>
+        <div class="add-row">
+          <select v-model="selectedTraitID">
+            <option value=-1>Add existing trait</option>
+            <option
+              v-for="trait, id in traitDatabase"
+              :key="id"
+              :value="id"
+            >
+            {{ trait.name }}
+            </option>
+          </select>
+          <button type="button" class="btn-circle" style="margin-left: 4px" @click="addTrait(block, traitDatabase[selectedTraitID].name, traitDatabase[selectedTraitID].description); selectedTraitID=-1">+</button>
+        </div>
+
+        <div class="add-row">
+          <input v-model="customTraitName" type="text" placeholder="Custom trait name" />
+          <button type="button" class="btn-circle" style="margin-left: 4px" @click="addTrait(block, customTraitName, '')">+</button>
+        </div>
+
+        <div v-for="trait, id in block.traits" :key="id" class="entry-card">
+          <div class="entry-header">
+            <input v-model="trait.name" type="text" placeholder="Trait name" />
+            <button type="button" class="btn-circle" @click="removeTrait(block, id)">−</button>
+          </div>
+
+          <textarea
+            v-model="trait.description"
+            rows="3"
+            placeholder="Trait description"
+          />
+        </div>
+      </div>
+      
+      <div>
+        <h2 class="section-note">Actions</h2>
+        <button type="button" class="btn-circle plus" @click="openActionForge()">+</button>
+        
+        <div
+          v-for="section in actionSectionKeys"
+          :key="section"
+          class="action-section"
+        >
+          <div v-if="block.actions[section].length > 0">
+            <p>{{ actionSectionLabels[section] }}</p>
+            <section class="actions-panel">
+              <div
+                v-for="(action, id) in block.actions[section]"
+                :key="id"
+                class="entry-card"
+              >
+                <div class="entry-header">
+                  <input v-model="action.name" type="text" placeholder="Action name" />
+                  <button type="button" class="btn-circle" @click="removeAction(block, section, id)">−</button>
+                </div>
+
+                <textarea
+                  v-model="action.description"
+                  rows="3"
+                  placeholder="Action description"
+                />
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section class="panel">
@@ -284,6 +394,98 @@ const block = reactive<BlockForm>({
       <div><pre>{{ block }}</pre></div>
       <div></div>
     </section>
+
+    <div v-if="showActionForge" class="modal-backdrop" @click.self="closeActionForge">
+      <section class="modal-card">
+        <div class="modal-header">
+          <h2>Action Forge</h2>
+        </div>
+
+        <section class="actions-panel">
+          <div class="sub-panel">
+            <span>Name</span>
+            <input v-model="actionDraft.name" type="text" placeholder="Action name" />
+          </div>
+          <div class="sub-panel">
+            <span>Section</span>
+            <select v-model="actionDraft.section">
+              <option
+                v-for="section in actionSectionKeys"
+                :key="section"
+                :value="section"
+              >
+                {{ actionSectionLabels[section] }}
+              </option>
+            </select>
+          </div>
+          <div class="sub-panel">
+            <span>Category</span>
+            <select v-model="actionDraft.category">
+              <option
+                v-for="category in actionCategories"
+                :key="category"
+                :value="category"
+              >
+                {{ category }}
+              </option>
+            </select>
+          </div>
+          <div class="sub-panel">
+            <span>Sub-Category</span>
+            <select v-if="actionDraft.category === 'Attack'" v-model="actionDraft.attackSubcat">
+              <option
+                v-for="category in attackSubcats"
+                :key="category"
+                :value="category"
+              >
+                {{ category }}
+              </option>
+            </select>
+            <span v-else>-</span>
+          </div>
+          <div v-if="actionDraft.category === 'Attack'" class="actions-panel">
+            <div v-if="actionDraft.category === 'Attack'" class="sub-panel">
+              <span>Range</span>
+              <input v-model.number="actionDraft.range" type="number" min="5" max="500" placeholder="5" />
+            </div>
+            <div class="sub-panel">
+              <span>Ability</span>
+              <select v-model="actionDraft.attackAbility">
+                <option
+                  v-for="ability in abilityKeys"
+                  :key="ability"
+                  :value="ability"
+                >
+                  {{ ability }}
+                </option>
+              </select>
+            </div>
+          </div>
+          <div v-if="actionDraft.category === 'Attack'" class="actions-panel">
+            <div class="sub-panel">
+              <span>Prof. (+{{ block.bonus }}) ?</span>
+              <input v-model="actionDraft.proficient" type="checkbox">
+            </div>
+            <div class="sub-panel">
+              <span>Hit Bonus</span>
+              <input v-model.number="actionDraft.hitBonus" type="number" min="0" max="99" placeholder="0" />
+            </div>
+          </div>
+        </section>
+
+        <!-- <span>Description</span>
+        <textarea
+          v-model="actionDraft.description"
+          rows="5"
+          placeholder="Action description"
+        /> -->
+
+        <div class="modal-actions">
+          <button type="button" @click="closeActionForge">Cancel</button>
+          <button type="button" @click="createActionFromForge">Create</button>
+        </div>
+      </section>
+    </div>
   </main>
 </template>
 
@@ -330,6 +532,18 @@ body,
 .panel.results {
   grid-template-columns: 1fr 1fr;
 }
+.actions-panel {
+  display: grid;
+  text-align: left;
+  grid-template-columns: 1fr 1fr;
+  margin-bottom: 8px;
+}
+.sub-panel {
+  display: grid;
+  padding: 10px;
+  gap: 3px;
+}
+
 
 h1,
 h2 {
@@ -476,5 +690,94 @@ p {
 
 .btn-circle:hover {
   background: var(--border);
+}
+
+.add-row {
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.add-row input,
+.add-row select {
+  flex: 1;
+}
+
+.entry-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+
+.entry-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.entry-header input {
+  flex: 1;
+}
+
+.entry-card textarea {
+  width: 100%;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.action-section {
+  margin-top: 16px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 24px;
+}
+
+.modal-card {
+  width: min(520px, 100%);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  display: grid;
+  gap: 0px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-header h2 {
+  margin: 0;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.modal-card textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
 }
 </style>

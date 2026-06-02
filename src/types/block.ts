@@ -1,3 +1,6 @@
+import type { BlockTrait } from './traits'
+import type { BlockAction, ActionSectionKey } from './actions'
+
 export const speedKeys = ['Walk', 'Burrow', 'Climb', 'Fly', 'Swim']
 export type SpeedKey = typeof speedKeys[number]
 export type Speed = Record<SpeedKey, number>
@@ -41,4 +44,6 @@ export type BlockForm = {
     abilities: Abilities
     senses: Senses
     languages: Languages
+    traits: BlockTrait[]
+    actions: Record<ActionSectionKey, BlockAction[]>
 }
